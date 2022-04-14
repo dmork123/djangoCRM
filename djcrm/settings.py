@@ -118,7 +118,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR / "static"
+]
+STATIC_ROOT = "static_root"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
@@ -126,3 +130,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'leads.User' # specifies that we have our own custom USer model
+
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+LOGIN_REDIRECT_URL = "/leads"
+LOGIN_URL="/login"
