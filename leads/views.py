@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from .models import Agent, Lead
 from .forms import LeadForm, LeadModelForm, CustomUserCreationForm
 from django.views import generic
-
+from agents.mixins import OrganisorAndLoginRequiredMixin
 
 class SignupView(generic.CreateView):
     template_name = "registration/signup.html"
@@ -28,9 +28,10 @@ def lead_landing_page(request):
 class LeadListView(LoginRequiredMixin, generic.ListView):
     template_name = "leads/lead_list.html"
     # since no context is past, in our html file its default value would be object_list
-    queryset = Lead.objects.all()
     context_object_name = "leads"  # Though we can update that to what we want here
 
+    def get_queryset(self):
+        queryset = Lead.objects.all()
 
 def lead_list(request):
     leads = Lead.objects.all()
@@ -57,7 +58,7 @@ def lead_detail(request, pk):
     return render(request, "leads/lead_detail.html", context)
 
 
-class LeadCreateView(LoginRequiredMixin, generic.CreateView):
+class LeadCreateView(OrganisorAndLoginRequiredMixin, generic.CreateView):
     template_name = "leads/lead_create.html"
     form_class = LeadModelForm
 
@@ -87,7 +88,7 @@ def lead_create(request):
     return render(request, "leads/lead_create.html", context)
 
 
-class LeadUpdateView(LoginRequiredMixin, generic.UpdateView):
+class LeadUpdateView(OrganisorAndLoginRequiredMixin, generic.UpdateView):
     template_name = "leads/lead_update.html"
     form_class = LeadModelForm
     queryset = Lead.objects.all()
@@ -113,7 +114,7 @@ def lead_update(request, pk):
     return render(request, "leads/lead_update.html", context)
 
 
-class LeadDeleteView(LoginRequiredMixin, generic.DeleteView):
+class LeadDeleteView(OrganisorAndLoginRequiredMixin, generic.DeleteView):
     template_name = "leads/lead_delete.html"
     queryset = Lead.objects.all()
 
