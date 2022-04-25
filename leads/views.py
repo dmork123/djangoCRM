@@ -31,7 +31,18 @@ class LeadListView(LoginRequiredMixin, generic.ListView):
     context_object_name = "leads"  # Though we can update that to what we want here
 
     def get_queryset(self):
-        queryset = Lead.objects.all()
+        user = self.request.user
+        
+        # initial queryset of leads for the entire organisation 
+        if user.is_organisor: # if a user is an organisor then they will have a userProfile.
+            queryset = Lead.objects.filter(organization=user.userprofile)
+        else:
+            queryset = Lead.objects.filter(organization=user.agent.organization)
+            # filter for the agent that is logged in
+            queryset = queryset.filter(agent__user=user) # https://youtu.be/fOukA4Qh9QA?t=20972 
+        
+        return queryset # this is where it makes the final call to the DB
+            
 
 def lead_list(request):
     leads = Lead.objects.all()
@@ -46,8 +57,20 @@ def lead_list(request):
 class LeadDetailView(LoginRequiredMixin, generic.DetailView):
     template_name = "leads/lead_detail.html"
     # since no context is past, in our html file its default value would be object_list
-    queryset = Lead.objects.all()
     context_object_name = "lead"  # Though we can update that to what we want here
+    
+    def get_queryset(self):
+        user = self.request.user
+        
+        # initial queryset of leads for the entire organisation 
+        if user.is_organisor: # if a user is an organisor then they will have a userProfile.
+            queryset = Lead.objects.filter(organization=user.userprofile)
+        else:
+            queryset = Lead.objects.filter(organization=user.agent.organization)
+            # filter for the agent that is logged in
+            queryset = queryset.filter(agent__user=user) # https://youtu.be/fOukA4Qh9QA?t=20972 
+        
+        return queryset # this is where it makes the final call to the DB
 
 
 def lead_detail(request, pk):
@@ -91,7 +114,11 @@ def lead_create(request):
 class LeadUpdateView(OrganisorAndLoginRequiredMixin, generic.UpdateView):
     template_name = "leads/lead_update.html"
     form_class = LeadModelForm
-    queryset = Lead.objects.all()
+    
+    def get_queryset(self):
+        user = self.request.user
+        
+        return Lead.objects.filter(organization=user.userprofile) # this is where it makes the final call to the DB
 
     def get_success_url(self) -> str:
         return reverse("leads:lead-list")
@@ -116,7 +143,21 @@ def lead_update(request, pk):
 
 class LeadDeleteView(OrganisorAndLoginRequiredMixin, generic.DeleteView):
     template_name = "leads/lead_delete.html"
-    queryset = Lead.objects.all()
+    
+    def get_queryset(self):
+        user = self.request.user
+        
+        # initial queryset of leads for the entire organisation 
+        if user.is_organisor: # if a user is an organisor then they will have a userProfile.
+            queryset = Lead.objects.filter(organization=user.userprofile)
+        else:
+            queryset = Lead.objects.filter(organization=user.agent.organization)
+            # filter for the agent that is logged in
+            queryset = queryset.filter(agent__user=user) # https://youtu.be/fOukA4Qh9QA?t=20972 
+        
+        return queryset # this is where it makes the final call to the DB
+
+
 
     def get_success_url(self) -> str:
         return reverse("leads:lead-list")

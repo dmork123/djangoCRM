@@ -7,7 +7,7 @@ class User(AbstractUser):
     is_agent = models.BooleanField(default=False)
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE) # The one-to-one relationship allows us to do user.UserProfile
     
     def __str__(self):
         return self.user.username
@@ -23,6 +23,7 @@ class Lead(models.Model):
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
     age = models.IntegerField(default=0)
+    organization = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     agent = models.ForeignKey("Agent", null=True, blank=True, on_delete=models.SET_NULL) 
     
     def __str__(self) -> str:
@@ -35,7 +36,7 @@ class Lead(models.Model):
     # special_files = models.FileField(blank=True, null=True)
 
 class Agent(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE) # The one-to-one relationship allows us to do user.agent
     organization = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     
     def __str__(self):

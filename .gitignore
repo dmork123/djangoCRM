@@ -129,3 +129,5 @@ dmypy.json
 .pyre/
 
 crm_venv/
+
+.idea/
