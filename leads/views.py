@@ -35,15 +35,26 @@ class LeadListView(LoginRequiredMixin, generic.ListView):
         
         # initial queryset of leads for the entire organisation 
         if user.is_organisor: # if a user is an organisor then they will have a userProfile.
-            queryset = Lead.objects.filter(organization=user.userprofile)
+            queryset = Lead.objects.filter(organization=user.userprofile, agent__isnull=False)
         else:
-            queryset = Lead.objects.filter(organization=user.agent.organization)
+            queryset = Lead.objects.filter(organization=user.agent.organization, agent__isnull=False)
             # filter for the agent that is logged in
             queryset = queryset.filter(agent__user=user) # https://youtu.be/fOukA4Qh9QA?t=20972 
         
         return queryset # this is where it makes the final call to the DB
+    
+    # exmaple of how you would pass context in a class based view      
+    def get_context_data(self, **kwargs):
+        user = self.request.user
+        context = super(LeadListView, self).get_context_data( **kwargs)
+        if user.is_organisor:
+            queryset = Lead.objects.filter(organization=user.userprofile, agent__isnull=True) # The agent__isnull filter to see if that foreignkey object is null
+            context.update({
+                "unassigned_leads": queryset
+            })
+        return context
             
-
+        
 def lead_list(request):
     leads = Lead.objects.all()
 
