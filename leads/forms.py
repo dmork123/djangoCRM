@@ -1,5 +1,5 @@
 from django import forms
-from .models import Lead
+from .models import Lead, Agent
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, UsernameField
 
@@ -27,3 +27,13 @@ class CustomUserCreationForm(UserCreationForm):
         field_classes = {
             'username': UsernameField
         }
+
+class AssignAgentForm(forms.Form):
+    agent = forms.ModelChoiceField(queryset=Agent.objects.none())
+    
+    def __init__(self, *args, **kwargs):
+        request = kwargs.pop("request") # we remove this as django does not expect a request arg in the form
+        agents = Agent.objects.filter(organization=request.user.userprofile)
+        super(AssignAgentForm, self).__init__(*args, **kwargs) # overritting the initial init method but with the "request" popped
+        self.fields["agent"].queryset = agents # notice that this has to be called after the super method because thats what initialises the form
+       
